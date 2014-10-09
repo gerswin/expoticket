@@ -114,7 +114,7 @@ background-color: #f6f6f6;
                                 <tr style="font-family: 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif; box-sizing: border-box; font-size: 14px; margin: 0; padding: 0;">
                                     <td class="content-block nombre" style="font-family: 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif; box-sizing: border-box; font-size: 14px; vertical-align: top; margin: 0; padding: 0 0 20px;   font-size: 24px; color: #ff7d33 !important;" valign="top">
 
-                                        <a href="http://expotachira.net/planimetria.html"> <img src="https://s3-sa-east-1.amazonaws.com/uploads-br.hipchat.com/97434/713107/00xpCdRCmvJdumm/ver.png" ></a>
+                                        <a href="http://expotachira.net/planimetria.html"> <img src="https://photos-5.dropbox.com/t/1/AAASU4EuTHV5aWjrymo7ZA7t6hQHtWuQbE4sxU5Zn69Ydw/12/3675148/png/1024x768/3/1412899200/0/2/ver.png/GKapWDL0gMYbL1bGf7WvB9AXFA54zafEqZ9YLjQWzWs" ></a>
                                     </td>
                                 </tr>
 
