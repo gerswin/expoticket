@@ -2,7 +2,7 @@
 require 'vendor/autoload.php';
 use Mailgun\Mailgun;
 
-$app = new Slim();
+$app = new \Slim\Slim();
 $app->database = new medoo([
 
     'database_type' => 'mysql',
