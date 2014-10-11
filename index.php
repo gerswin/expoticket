@@ -20,7 +20,71 @@ $app->database = new medoo([
 
 $app->mg = new Mailgun("key-76u-fd2ilxwmtid-dm9rgq69dikp6km3");
 $app->mg_domain = "expotachira.net";
-$app->email_1 = <<<EOF
+$body = $app->request->getBody();
+
+$app->get('/', function () {
+    echo "Parawebs, C.A";
+});
+
+$app->get('/tipoempresa', function () use ($app){
+	$datas =  $app->database->select("tipo_empresa", ["tipo_id","tipo_des"]);
+	header("access-control-allow-origin: *");
+	echo json_encode($datas);
+});
+
+$app->get('/listclie', function () use ($app){
+	$datas =  $app->database->select("preventaweb", "*");
+	header("access-control-allow-origin: *");
+	echo json_encode($datas);
+});
+
+$app->get('/clipre/:id', function ($id) use ($app){
+	$datas =  $app->database->select("preventaweb", "*" , [ "pre_id" => $id ]);
+	header("access-control-allow-origin: *");
+	echo json_encode($datas[0]);
+});
+
+$app->post('/savenew', function () use ($app) {
+
+
+    $vars = $app->request->post();
+    $status=true;
+	$errorlog=array();
+    if (empty($vars['empresa'])) {
+    	$errorlog[]= "empresa";
+    	$status=false;
+    }
+    if (empty($vars['contacto'])) {
+    	$errorlog[]= "contacto";
+    	$status=false;
+    }
+    if (empty($vars['telefono'])) {
+    	$errorlog[]= "telefono";
+    	$status=false;
+    }
+	if (!filter_var($vars['email'], FILTER_VALIDATE_EMAIL)) {
+		$errorlog[]= "email";
+		$status=false;
+	}
+	if (empty($vars['tipo'])) {
+    	$errorlog[]= "tipo";
+    	$status=false;
+    }
+
+    if ($status) {
+
+		$guardado = true;
+		$app->database->insert('preventaweb', [
+		'pre_emp' => $vars['empresa'],
+		'pre_con' => $vars['contacto'],
+		'pre_tel' => $vars['telefono'],
+		'pre_ema' => $vars['email'],
+		'pre_tip' => intval($vars['tipo']),
+		'pre_ruta' => intval($vars['pre_ruta']),
+		'pre_rutaid' => intval($vars['pre_rutaid'])
+		]);
+		$guardado = true;
+    $email = <<<EOF
   <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" style="font-family: 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif; box-sizing: border-box; font-size: 14px; margin: 0; padding: 0;">
 <head>
@@ -104,9 +168,7 @@ background-color: #f6f6f6;
                                 <tr style="font-family: 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif; box-sizing: border-box; font-size: 14px; margin: 0; padding: 0;">
                                     <td class="content-block nombre" style="font-family: 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif; box-sizing: border-box; font-size: 14px; vertical-align: top; margin: 0; padding: 0 0 20px;   font-size: 24px; color: #ff7d33 !important;" valign="top">
 
-
-EOF;
-$app->email_2 = <<<EOF  
+                                      HOLA {$vars['contacto']}
                                     </td>
                                 </tr>
                                 <tr style="font-family: 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif; box-sizing: border-box; font-size: 14px; margin: 0; padding: 0;">
@@ -142,73 +204,10 @@ $app->email_2 = <<<EOF
 </body>
 </html>
 EOF;
-$body = $app->request->getBody();
-
-$app->get('/', function () {
-    echo "Parawebs, C.A";
-});
-
-$app->get('/tipoempresa', function () use ($app){
-	$datas =  $app->database->select("tipo_empresa", ["tipo_id","tipo_des"]);
-	header("access-control-allow-origin: *");
-	echo json_encode($datas);
-});
-
-$app->get('/listclie', function () use ($app){
-	$datas =  $app->database->select("preventaweb", "*");
-	header("access-control-allow-origin: *");
-	echo json_encode($datas);
-});
-
-$app->get('/clipre/:id', function ($id) use ($app){
-	$datas =  $app->database->select("preventaweb", "*" , [ "pre_id" => $id ]);
-	header("access-control-allow-origin: *");
-	echo json_encode($datas[0]);
-});
-
-$app->post('/savenew', function () use ($app) {
-
-    $vars = $app->request->post();
-    $status=true;
-	$errorlog=array();
-    if (empty($vars['empresa'])) {
-    	$errorlog[]= "empresa";
-    	$status=false;
-    }
-    if (empty($vars['contacto'])) {
-    	$errorlog[]= "contacto";
-    	$status=false;
-    }
-    if (empty($vars['telefono'])) {
-    	$errorlog[]= "telefono";
-    	$status=false;
-    }
-	if (!filter_var($vars['email'], FILTER_VALIDATE_EMAIL)) {
-		$errorlog[]= "email";
-		$status=false;
-	}
-	if (empty($vars['tipo'])) {
-    	$errorlog[]= "tipo";
-    	$status=false;
-    }
-
-    if ($status) {
-
-		$guardado = true;
-		$app->database->insert('preventaweb', [
-		'pre_emp' => $vars['empresa'],
-		'pre_con' => $vars['contacto'],
-		'pre_tel' => $vars['telefono'],
-		'pre_ema' => $vars['email'],
-		'pre_tip' => intval($vars['tipo']),
-		'pre_ruta' => intval($vars['pre_ruta']),
-		'pre_rutaid' => intval($vars['pre_rutaid'])
-		]);
-		$guardado = true;
 		$app->mg->sendMessage($app->mg_domain, array('from' => 'ventas@expotachira.net',
 		'to' => $vars['email'],
 		'subject' => "Preventa ExpoTachira 2015",
-		'html' => ($app->email_1 ."Hola ". $vars['contacto']. $app->email_2));
+		'html' => $email));
     }else{
     		$guardado = false;
     }
