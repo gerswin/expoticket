@@ -103,12 +103,13 @@ background-color: #f6f6f6;
 
                                 <tr style="font-family: 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif; box-sizing: border-box; font-size: 14px; margin: 0; padding: 0;">
                                     <td class="content-block nombre" style="font-family: 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif; box-sizing: border-box; font-size: 14px; vertical-align: top; margin: 0; padding: 0 0 20px;   font-size: 24px; color: #ff7d33 !important;" valign="top">
-                                        Hola 
+                                        
+                                        Hola  {$vars['contacto']}
                                     </td>
                                 </tr>
                                 <tr style="font-family: 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif; box-sizing: border-box; font-size: 14px; margin: 0; padding: 0;">
                                     <td class="content-block" style="font-family: 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif; box-sizing: border-box; font-size: 16px; vertical-align: top; margin: 0; padding: 0 0 20px;" valign="top">
-                                        Gracias por registrarte, pronto seras atendido por nuestro servicio de <strong>Atencion al cliente</strong>, mientras tanto te invitamos a conocer en detalle la perimetria y los servicios que ofrecidos por la <strong>ExpoFiss 2015.</strong>
+                                        Gracias por registrarte, pronto seras atendido por nuestro servicio de <strong>Atencion al cliente</strong>, mientras tanto te invitamos a conocer en detalle la planimetria y los servicios ofrecidos por la <strong>ExpoFiss 2015.</strong>
                                     </td>
                                 </tr>
                                 <tr style="font-family: 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif; box-sizing: border-box; font-size: 14px; margin: 0; padding: 0;">
@@ -202,7 +203,7 @@ $app->post('/savenew', function () use ($app) {
 		'pre_rutaid' => intval($vars['pre_rutaid'])
 		]);
 		$guardado = true;
-		$app->mg->sendMessage($app->mg_domain, array('from' => 'ventas@tuquiniela.net',
+		$app->mg->sendMessage($app->mg_domain, array('from' => 'ventas@expotachira.net',
 		'to' => $vars['email'],
 		'subject' => "Preventa ExpoTachira 2015",
 		'html' => $app->email));
