@@ -20,7 +20,7 @@ $app->database = new medoo([
 
 $app->mg = new Mailgun("key-76u-fd2ilxwmtid-dm9rgq69dikp6km3");
 $app->mg_domain = "expotachira.net";
-$app->email = <<<EOF
+$app->email_1 = <<<EOF
   <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" style="font-family: 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif; box-sizing: border-box; font-size: 14px; margin: 0; padding: 0;">
 <head>
@@ -103,8 +103,10 @@ background-color: #f6f6f6;
 
                                 <tr style="font-family: 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif; box-sizing: border-box; font-size: 14px; margin: 0; padding: 0;">
                                     <td class="content-block nombre" style="font-family: 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif; box-sizing: border-box; font-size: 14px; vertical-align: top; margin: 0; padding: 0 0 20px;   font-size: 24px; color: #ff7d33 !important;" valign="top">
-                                        
-                                        Hola  {$vars['contacto']}
+
+
+EOF;
+$app->email_2 = <<<EOF  
                                     </td>
                                 </tr>
                                 <tr style="font-family: 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif; box-sizing: border-box; font-size: 14px; margin: 0; padding: 0;">
@@ -206,7 +208,7 @@ $app->post('/savenew', function () use ($app) {
 		$app->mg->sendMessage($app->mg_domain, array('from' => 'ventas@expotachira.net',
 		'to' => $vars['email'],
 		'subject' => "Preventa ExpoTachira 2015",
-		'html' => $app->email));
+		'html' => $app->email_1."Hola ".$vars['contacto'].$app->email_2));
     }else{
     		$guardado = false;
     }
