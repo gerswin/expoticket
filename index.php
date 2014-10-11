@@ -208,7 +208,7 @@ $app->post('/savenew', function () use ($app) {
 		$app->mg->sendMessage($app->mg_domain, array('from' => 'ventas@expotachira.net',
 		'to' => $vars['email'],
 		'subject' => "Preventa ExpoTachira 2015",
-		'html' => $app->email_1."Hola ".$vars['contacto'].$app->email_2));
+		'html' => ($app->email_1 ."Hola ". $vars['contacto']. $app->email_2));
     }else{
     		$guardado = false;
     }
