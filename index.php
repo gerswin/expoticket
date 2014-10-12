@@ -26,7 +26,8 @@ $app->get('/', function () {
     echo "Parawebs, C.A";
 });
 $app->get('/wakeup', function () {
-    echo "Done";
+   header("access-control-allow-origin: *");
+   echo json_encode("done");
 });
 
 $app->get('/tipoempresa', function () use ($app){
