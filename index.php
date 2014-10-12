@@ -25,6 +25,9 @@ $body = $app->request->getBody();
 $app->get('/', function () {
     echo "Parawebs, C.A";
 });
+$app->get('/wakeup', function () {
+    echo "Done";
+});
 
 $app->get('/tipoempresa', function () use ($app){
 	$datas =  $app->database->select("tipo_empresa", ["tipo_id","tipo_des"]);
