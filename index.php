@@ -1,4 +1,33 @@
 <?php
+
+abstract class tipoStand{
+  const venezuela=1;
+  const colombia=2;
+  const feriaComida=3;
+  const patio3=4;
+  const patio4=5;
+  const patio5=6;
+}
+abstract class edoStand{
+  const disponible=1;
+  const reservado=2;
+  const comprado=3;
+}
+  $places=array();
+  $places[tipoStand::venezuela]="Venezuela";
+  $places[tipoStand::colombia]="Colombia";
+
+  $mts=array();
+  $mts[1]="5.7";
+  $mts[2]="6";
+  $mts[3]="8";
+  $mts[4]="8.5";
+  $mts[5]="9";
+  $mts[6]="11.5";
+  $mts[7]="25";
+  $mts[8]="27";
+  $mts[9]="35";
+
 require 'vendor/autoload.php';
 use Mailgun\Mailgun;
 
@@ -143,6 +172,38 @@ $body = $app->request->getBody();
 
 $app->get('/', function () {
     echo "Parawebs, C.A";
+});
+
+$app->get('/plazas', function () use ($places) {
+    header('access-control-allow-origin: *');
+    header('Content-Type: application/json', false);
+    echo json_encode($places);
+});
+
+$app->get('/meters/:id', function ($id) use ($app,$mts) {
+    $data= $app->database->select('stands','std_mts',['std_tipo'=>$id]);
+    header("access-control-allow-origin: *");
+    $response=array();
+    $unic=array_unique($data);
+    foreach ($unic as $key => $value) {
+     if(in_array($value,$mts)){
+      $response[array_search ($value, $mts)]=$value;
+     }
+    }
+    ksort($response);
+    header('access-control-allow-origin: *');
+    header('Content-Type: application/json', false);
+    echo json_encode($response);
+});
+
+$app->get('/stands/:id/:mts', function ($idtipo,$mtspos) use ($app,$mts){
+  if(isset($mts[$mtspos]))
+    $datas =  $app->database->select('stands',['std_id(id)','std_nro(name)'],['AND'=>['std_tipo'=>$idtipo,'std_mts'=>$mts[$mtspos],'std_estatus'=>edoStand::disponible], 'ORDER' => ['std_nro ASC']]);
+  else
+    $datas=array();
+    header('access-control-allow-origin: *');
+    header('Content-Type: application/json', false);
+    echo json_encode($datas);
 });
 
 $app->get('/tipoempresa', function () use ($app){
