@@ -221,7 +221,7 @@ $app->get('/listclie', function () use ($app){
 });
 
 $app->get('/allclient', function () use ($app){
-  $datas =  $app->database->select("clientes", ["cli_rif(rif)","cli_razon(razon)","cli_contacto(contacto)"]);
+  $datas =  $app->database->select("clientes", ["cli_rif(rif)","cli_razon(razon)","cli_contacto(contacto)","cli_id(id)"]);
   header('access-control-allow-origin: *');
   header('Content-Type: application/json', false);
   echo json_encode($datas);
@@ -287,7 +287,7 @@ $app->post('/saveclient', function () use ($app) {
       'cli_correo' => $vars['st_correo']
       ]);
       if($id>0){
-        $row=$app->database->update('stands', ["std_estatus"=>$vars['st_condi']], ["std_id" => $vars['st_stand']]);
+        $row=$app->database->update('stands', ["std_estatus"=>$vars['st_condi'], "idCliente"=>$id], ["std_id" => $vars['st_stand']]);
         if($row>0)
         $guardado = true;
         else
