@@ -174,14 +174,14 @@ $app->get('/', function () {
     echo "Parawebs, C.A";
 });
 
-$app->get('/plazas', function () use ($places) {
+$app->get('/zonas', function () use ($places) {
     header('access-control-allow-origin: *');
     header('Content-Type: application/json', false);
     echo json_encode($places);
 });
 
 $app->get('/meters/:id', function ($id) use ($app,$mts) {
-    $data= $app->database->select('stands','std_mts',['std_tipo'=>$id]);
+    $data= $app->database->select('stands','std_mts',['AND'=>['std_tipo'=>$id,'std_estatus'=>edoStand::disponible]]);
     header("access-control-allow-origin: *");
     $response=array();
     $unic=array_unique($data);
@@ -208,21 +208,104 @@ $app->get('/stands/:id/:mts', function ($idtipo,$mtspos) use ($app,$mts){
 
 $app->get('/tipoempresa', function () use ($app){
 	$datas =  $app->database->select("tipo_empresa", ["tipo_id","tipo_des"]);
-	header("access-control-allow-origin: *");
-	echo json_encode($datas);
+  header('access-control-allow-origin: *');
+  header('Content-Type: application/json', false);
+  echo json_encode($datas);
 });
 
 $app->get('/listclie', function () use ($app){
 	$datas =  $app->database->select("preventaweb", "*");
-	header("access-control-allow-origin: *");
-	echo json_encode($datas);
+  header('access-control-allow-origin: *');
+  header('Content-Type: application/json', false);
+  echo json_encode($datas);
 });
+
+$app->get('/allclient', function () use ($app){
+  $datas =  $app->database->select("clientes", ["cli_rif(rif)","cli_razon(razon)","cli_contacto(contacto)"]);
+  header('access-control-allow-origin: *');
+  header('Content-Type: application/json', false);
+  echo json_encode($datas);
+});
+
 
 $app->get('/clipre/:id', function ($id) use ($app){
 	$datas =  $app->database->select("preventaweb", "*" , [ "pre_id" => $id ]);
-	header("access-control-allow-origin: *");
+  header('access-control-allow-origin: *');
+  header('Content-Type: application/json', false);
 	echo json_encode($datas[0]);
 });
+
+$app->post('/saveclient', function () use ($app) {
+
+    $vars = $app->request->post();
+    $status=true;
+    $guardado=false;
+    $errorlog=array();
+    if (empty($vars['st_rif'])) {
+      $errorlog[]= "st_rif";
+      $status=false;
+    }
+    if (empty($vars['st_razon'])) {
+      $errorlog[]= "st_razon";
+      $status=false;
+    }
+    if (empty($vars['st_contacto'])) {
+      $errorlog[]= "st_contacto";
+      $status=false;
+    }
+    if (empty($vars['st_telf'])) {
+      $errorlog[]= "st_telf";
+      $status=false;
+    }
+    if (!filter_var($vars['st_correo'], FILTER_VALIDATE_EMAIL)) {
+      $errorlog[]= "st_correo";
+      $status=false;
+    }
+    if (empty($vars['st_condi'])) {
+      $errorlog[]= "st_condi";
+      $status=false;
+    }
+    if (empty($vars['st_zona'])) {
+      $errorlog[]= "st_zona";
+      $status=false;
+    }
+    if (empty($vars['st_mts'])) {
+      $errorlog[]= "st_mts";
+      $status=false;
+    }
+    if (empty($vars['st_stand'])) {
+      $errorlog[]= "st_stand";
+      $status=false;
+    }
+
+    if ($status) {
+      $id=$app->database->insert('clientes', [
+      'cli_rif' => $vars['st_rif'],
+      'cli_razon' => $vars['st_razon'],
+      'cli_contacto' => $vars['st_contacto'],
+      'cli_telefono' => $vars['st_telf'],
+      'cli_correo' => $vars['st_correo']
+      ]);
+      if($id>0){
+        $row=$app->database->update('stands', ["std_estatus"=>$vars['st_condi']], ["std_id" => $vars['st_stand']]);
+        if($row>0)
+        $guardado = true;
+        else
+          $app->database->delete('clientes',['cli_rif'=>$vars['st_rif']]);
+      }
+    }else{
+        $guardado = false;
+    }
+    $respuesta = new stdClass();
+    $respuesta->estatus = $guardado;
+    $respuesta->error = $errorlog;
+
+  header('access-control-allow-origin: *');
+  header('Content-Type: application/json', false);
+  echo json_encode($respuesta);
+
+});
+
 
 $app->post('/savenew', function () use ($app) {
 
@@ -275,8 +358,9 @@ $app->post('/savenew', function () use ($app) {
     $respuesta->estatus = $guardado;
     $respuesta->error = $errorlog;
 
-    header("access-control-allow-origin: *");
-    echo json_encode($respuesta);
+  header('access-control-allow-origin: *');
+  header('Content-Type: application/json', false);
+  echo json_encode($respuesta);
 
 });
 
@@ -330,7 +414,8 @@ $app->post('/update/:tipo/:id', function ($tipo,$id) use ($app) {
     	}
     }
 
-    header("access-control-allow-origin: *");
+  header('access-control-allow-origin: *');
+  header('Content-Type: application/json', false);
 	echo json_encode($respuesta);
 
 });
@@ -354,7 +439,8 @@ $app->post('/newtask/:id', function ($id) use ($app) {
 	}else{
 			$respuesta->estatus = false;
 	}
-	header("access-control-allow-origin: *");
+  header('access-control-allow-origin: *');
+  header('Content-Type: application/json', false);
 	echo json_encode($respuesta);
 
 });
@@ -383,7 +469,8 @@ $app->post('/listtask/:tip', function ($tip) use ($app) {
 
 	$datas =  $app->database->select("tarea_pre", "*" , $sql);
 
-	header("access-control-allow-origin: *");
+  header('access-control-allow-origin: *');
+  header('Content-Type: application/json', false);
 	echo json_encode($datas);
 
 	// Lista DE TAREAS DE UN ID. EN ESPECIFICO
