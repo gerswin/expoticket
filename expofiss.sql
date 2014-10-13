@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Servidor: localhost
--- Tiempo de generación: 13-10-2014 a las 11:32:56
+-- Tiempo de generación: 13-10-2014 a las 12:01:26
 -- Versión del servidor: 5.5.38-0ubuntu0.14.04.1
 -- Versión de PHP: 5.5.9-1ubuntu4.4
 
@@ -36,27 +36,7 @@ CREATE TABLE IF NOT EXISTS `clientes` (
   PRIMARY KEY (`cli_rif`),
   UNIQUE KEY `cli_id` (`cli_id`),
   UNIQUE KEY `cli_id_2` (`cli_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=35 ;
-
---
--- Volcado de datos para la tabla `clientes`
---
-
-INSERT INTO `clientes` (`cli_id`, `cli_rif`, `cli_razon`, `cli_contacto`, `cli_telefono`, `cli_correo`) VALUES
-(32, 'j129868273123', 'parawebos', 'miguel', '04123123123', 'juan@melo.com'),
-(28, 'j12986827361823', 'parawebos', 'miguel', '04123123123', 'juan@melo.com'),
-(29, 'j1298682736183', 'parawebos', 'miguel', '04123123123', 'juan@melo.com'),
-(33, 'j1723123618273', 'CASA', '123123', '21312312312', 'TENGA@ASDAS.ASD'),
-(23, 'J18237192312312', 'UUasda', 'asdasdasd', '04123182368', 'asdasd@asdajshdcon.com'),
-(26, 'J18237192317876', 'UUasda', 'asdasdasd', '04123182368', 'asdasd@asdajshdcon.com'),
-(21, 'J18237192371822', 'UUasda', 'asdasdasd', '04123182368', 'asdasd@asdajshdcon.com'),
-(19, 'J18237192371823', 'UUasda', 'asdasdasd', '04123182368', 'asdasd@asdajshdcon.com'),
-(15, 'j712837129371', 'pepe', 'veraz', '04121231231', 'amilcar@asdasd.com'),
-(17, 'j712837129373', 'pepe', 'veraz', '04121231231', 'amilcar@asdasd.com'),
-(34, 'J77623123123123', 'USUASUD', 'JAUSDHGASDASD', '92838236128', 'ASDASD@ASDAS.ASD'),
-(10, 'j98273912731921', 'Juan mata', 'Jose Rodrigo', '04231231231', 'amicar@gma.com'),
-(7, 'j98273912731923', 'Juan mata', 'Jose Rodrigo', '04231231231', 'amicar@gma.com'),
-(14, 'j98273912731933', 'Juan mataaa', 'Jose Rodrigo', '04231231231', 'amicar@gma.com');
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
 
@@ -89,16 +69,7 @@ CREATE TABLE IF NOT EXISTS `preventaweb` (
   `pre_est` int(11) NOT NULL,
   `pre_int` text NOT NULL,
   PRIMARY KEY (`pre_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=32 ;
-
---
--- Volcado de datos para la tabla `preventaweb`
---
-
-INSERT INTO `preventaweb` (`pre_id`, `pre_emp`, `pre_con`, `pre_tel`, `pre_ema`, `pre_tip`, `pre_ruta`, `pre_rutaid`, `pre_est`, `pre_int`) VALUES
-(29, 'parwebs', 'Amilcar Zambrano', '04160893820', 'amilcarpw@gmail.com', 2, 0, 0, 1, ''),
-(30, 'parawebos', 'amilcarzambrano', '04160893820', 'amilcarzg@gmail.com', 2, 0, 0, 3, '0'),
-(31, 'parawebs', 'miguel', '04122037487', 'inventr@gmail.com', 2, 0, 0, 1, '1');
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
 
@@ -133,7 +104,7 @@ INSERT INTO `stands` (`std_id`, `std_tipo`, `std_nro`, `idCliente`, `std_estatus
 (8, 1, 8, '1', 1, '9'),
 (9, 1, 9, '1', 1, '9'),
 (10, 1, 10, '1', 1, '27'),
-(11, 1, 11, '1', 1, '9'),
+(11, 1, 11, '1', 3, '9'),
 (12, 1, 12, '1', 1, '9'),
 (13, 1, 13, '1', 1, '9'),
 (14, 1, 14, '1', 1, '8.5'),
@@ -147,7 +118,7 @@ INSERT INTO `stands` (`std_id`, `std_tipo`, `std_nro`, `idCliente`, `std_estatus
 (22, 1, 22, '1', 1, '6'),
 (23, 1, 23, '1', 1, '6'),
 (24, 1, 24, '1', 1, '5.7'),
-(25, 1, 25, '1', 1, '11.5'),
+(25, 1, 25, '1', 2, '11.5'),
 (26, 1, 26, '1', 1, '9'),
 (27, 1, 27, '1', 1, '9'),
 (28, 1, 28, '1', 1, '9'),
@@ -390,16 +361,7 @@ CREATE TABLE IF NOT EXISTS `tarea_pre` (
   `tar_est` int(11) NOT NULL COMMENT 'Estado',
   `tar_not` text NOT NULL COMMENT 'nota',
   PRIMARY KEY (`tar_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=36 ;
-
---
--- Volcado de datos para la tabla `tarea_pre`
---
-
-INSERT INTO `tarea_pre` (`tar_id`, `pre_id`, `tar_fechcre`, `tar_fechrea`, `tar_tip`, `tar_des`, `tar_est`, `tar_not`) VALUES
-(33, 30, '2014-10-11 09:31:13', '2014-10-11 09:40:50', 3, 'llamar en 5 minutos', 0, ''),
-(34, 30, '2014-10-13 00:23:34', '2014-10-13 12:23:24', 1, 'hola bebe', 2, '123'),
-(35, 30, '2014-10-13 00:25:08', '2014-10-13 06:24:35', 1, 'Guten morning!', 1, 'paso a proceso.');
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
 
