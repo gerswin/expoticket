@@ -35,10 +35,10 @@ $app = new \Slim\Slim();
 $app->database = new medoo([
 
     'database_type' => 'mysql',
-    'database_name' => 'expofiss',
-    'server' => '127.0.0.1',
-    'username' => 'root',
-    'password' => 'root',
+    'database_name' => 'heroku_c9899a9d8ba32ea',
+    'server' => 'us-cdbr-iron-east-01.cleardb.net',
+    'username' => 'bdfafd99df173d',
+    'password' => '7ee8528b',
     'port' => 3306,
     'charset' => 'utf8',
     'option' => [
