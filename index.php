@@ -186,7 +186,7 @@ $app->get('/', function () use ($app,$usr){
       echo json_encode($logout);
       die();
     }
-    echo "Parawebs, C.A";
+    echo json_encode(array("done"=>"Parawebs, C.A"));
 });
 
 $app->get('/cerrar', function () use ($app,$usr){
@@ -305,14 +305,16 @@ $app->post('/login', function () use ($app,$usr) {
     header('Content-Type: application/json', false);
     $vars = $app->request->post();
     $resp = new stdClass();
-    $edo= $app->database->select('user',"estado",["AND"=>["nombre"=>$vars["login"],"clave"=>$vars["passwd"]]]);
-    if($edo>0){
+    $data= $app->database->select('user',["nombre","estado"],["AND"=>["usuario"=>$vars["login"],"clave"=>$vars["passwd"]]]);
+    if($data[0]["estado"]>0){
           $arg=array();
           $arg['tipoLogOut']=tipoLogOut::Estado;
           $arg['tipoUser']=tipoUsuario::Admin;
+          $arg['nombre']=$data[0]["nombre"];
           $usr= new usuario(tipoConsulta::Creacion,$arg);
           $resp->estatus=true;
-          $resp->item=$usr->sessionID;
+          $resp->item["token"]=$usr->sessionID;
+          $resp->item["user"]=$usr->nombre;
     }
     else{
           $resp->estatus=false;
@@ -324,13 +326,15 @@ $app->post('/login', function () use ($app,$usr) {
 $app->post('/saveclient', function () use ($app,$usr) {
     header('access-control-allow-origin: *');
     header('Content-Type: application/json', false);
-    $token = $app->request->post('tokenid');
-    if(!isset($token)||($token!=$usr->sessionID)){
-        $logout["logout"]=true;
-        echo json_encode($logout);
-        die();
-     }
     $vars = $app->request->post();
+    $token =$vars["tokenid"];
+  if(!isset($token)||($token!=$usr->sessionID)){
+      $logout["logout"]=true;
+      $logout["token"]=$token;
+      $logout["session"]=$usr->sessionID;
+      echo json_encode($logout);
+      die();
+   }
     $status=true;
     $guardado=false;
     $errorlog=array();
@@ -398,16 +402,19 @@ $app->post('/saveclient', function () use ($app,$usr) {
 
 
 $app->post('/savenew', function () use ($app,$usr) {
-    header('access-control-allow-origin: *');
-    header('Content-Type: application/json', false);
-    $token = $app->request->post('tokenid');
-    if(!isset($token)||($token!=$usr->sessionID)){
-        $logout["logout"]=true;
-        echo json_encode($logout);
-        die();
-     }
-    $vars = $app->request->post();
-    $status=true;
+  header('access-control-allow-origin: *');
+  header('Content-Type: application/json', false);
+  $vars = $app->request->post();
+  $token =$vars["tokenid"];
+
+  if(!isset($token)||($token!=$usr->sessionID)){
+      $logout["logout"]=true;
+      $logout["token"]=$token;
+      $logout["session"]=$usr->sessionID;
+      echo json_encode($logout);
+      die();
+   }
+  $status=true;
 	$errorlog=array();
     if (empty($vars['empresa'])) {
     	$errorlog[]= "empresa";
@@ -463,13 +470,16 @@ $app->post('/savenew', function () use ($app,$usr) {
 $app->post('/update/:tipo/:id', function ($tipo,$id) use ($app,$usr) {
   header('access-control-allow-origin: *');
   header('Content-Type: application/json', false);
-  $token = $app->request->post('tokenid');
+  $vars = $app->request->post();
+  $token =$vars["tokenid"];
+
   if(!isset($token)||($token!=$usr->sessionID)){
       $logout["logout"]=true;
+      $logout["token"]=$token;
+      $logout["session"]=$usr->sessionID;
       echo json_encode($logout);
       die();
    }
-	$vars = $app->request->post();
 	$respuesta = new stdClass();
 
     if ($tipo=="clipre") {
@@ -523,13 +533,16 @@ $app->post('/update/:tipo/:id', function ($tipo,$id) use ($app,$usr) {
 $app->post('/newtask/:id', function ($id) use ($app,$usr) {
   header('access-control-allow-origin: *');
   header('Content-Type: application/json', false);
-  $token = $app->request->post('tokenid');
+  $vars = $app->request->post();
+  $token =$vars["tokenid"];
+
   if(!isset($token)||($token!=$usr->sessionID)){
       $logout["logout"]=true;
+      $logout["token"]=$token;
+      $logout["session"]=$usr->sessionID;
       echo json_encode($logout);
       die();
    }
-	$vars = $app->request->post();
 	$respuesta = new stdClass();
 
 	if ($app->database->has( "preventaweb" , ["pre_id" => $id ] )) {
@@ -553,14 +566,16 @@ $app->post('/newtask/:id', function ($id) use ($app,$usr) {
 $app->post('/listtask/:tip', function ($tip) use ($app,$usr) {
   header('access-control-allow-origin: *');
   header('Content-Type: application/json', false);
-  $token = $app->request->post('tokenid');
+  $vars = $app->request->post();
+  $token =$vars["tokenid"];
+
   if(!isset($token)||($token!=$usr->sessionID)){
       $logout["logout"]=true;
+      $logout["token"]=$token;
+      $logout["session"]=$usr->sessionID;
       echo json_encode($logout);
       die();
    }
-	// Toda la lista de Tareas por Realizar
-	$vars = $app->request->post();
 
 	// En este lado construyo - El array del sql.
 	switch ($tip) {

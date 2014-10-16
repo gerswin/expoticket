@@ -33,6 +33,7 @@ class usuario{
 
 	//propiedades privadas definidas por el usuario (las conocidas)
 	private $sessionID;
+	private $nombre;
 	/**
 	* Constructo de la clase, dos opciones operacionales creacion y consulta.
 	*
