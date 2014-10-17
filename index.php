@@ -1,8 +1,5 @@
 <?php
 
-define("USUARIO","a");
-define("PASSWD","a");
-
 abstract class tipoStand{
   const venezuela=1;
   const colombia=2;
@@ -50,11 +47,7 @@ $app->database = new medoo([
         PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
     ]
     ]);
-$app->mg = new Mailgun("key-76u-fd2ilxwmtid-dm9rgq69dikp6km3");
 
-$app->mg = new Mailgun("key-76u-fd2ilxwmtid-dm9rgq69dikp6km3");
-$app->mandrill = new Mandrill('ltROxFSshMC4RBZpDxXAqQ');  
-$app->mg_domain = "expotachira.net";
 $body = $app->request->getBody();
 $usr= new usuario(tipoConsulta::Consulta,null);
 
@@ -248,6 +241,10 @@ $app->post('/saveclient', function () use ($app,$usr) {
 $app->post('/savenew', function () use ($app) {
     $vars = $app->request->post();
     $status=true;
+    $app->mg = new Mailgun("key-76u-fd2ilxwmtid-dm9rgq69dikp6km3");
+    $app->mandrill = new Mandrill('ltROxFSshMC4RBZpDxXAqQ');
+    $app->mg_domain = "expotachira.net";
+
 	$errorlog=array();
     if (empty($vars['empresa'])) {
     	$errorlog[]= "empresa";
@@ -306,9 +303,9 @@ $app->post('/savenew', function () use ($app) {
     $template_content = array();
 
     $app->mandrill->messages->sendTemplate($template_name, $template_content, $message);
-	  $app->mg->sendMessage($app->mg_domain, array('from'    => 'noreply@expotachira.net', 
-                                'to'      => "ventas@expotachira.net", 
-                                'subject' => "Nuevo Registro", 
+	  $app->mg->sendMessage($app->mg_domain, array('from'    => 'noreply@expotachira.net',
+                                'to'      => "ventas@expotachira.net",
+                                'subject' => "Nuevo Registro",
                                 'text'    => "Nueva empresa registrada."));
     }else{
     		$guardado = false;
@@ -436,7 +433,11 @@ $app->post('/listtask/:tip', function ($tip) use ($app,$usr) {
 function validartoken($token,$sessionID){
   if($token==''||!isset($token)||($token!=$sessionID)){
       $logout["logout"]=true;
+      $logout["token"]=$token;
+      $logout["sessionID"]=$sessionID;
+
       echo json_encode($logout);
+
       die();
   }
 }
