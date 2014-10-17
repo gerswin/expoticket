@@ -1,5 +1,8 @@
 <?php
 
+define("USUARIO","a");
+define("PASSWD","a");
+
 abstract class tipoStand{
   const venezuela=1;
   const colombia=2;
@@ -28,6 +31,7 @@ abstract class edoStand{
   $mts[8]="27";
   $mts[9]="35";
 
+require_once 'usuario.php';
 require 'vendor/autoload.php';
 use Mailgun\Mailgun;
 
@@ -35,10 +39,10 @@ $app = new \Slim\Slim();
 $app->database = new medoo([
 
     'database_type' => 'mysql',
-    'database_name' => 'heroku_c9899a9d8ba32ea',
-    'server' => 'us-cdbr-iron-east-01.cleardb.net',
-    'username' => 'bdfafd99df173d',
-    'password' => '7ee8528b',
+    'database_name' => 'expofiss',
+    'server' => '127.0.0.1',
+    'username' => 'root',
+    'password' => 'root',
     'port' => 3306,
     'charset' => 'utf8',
     'option' => [
@@ -46,7 +50,7 @@ $app->database = new medoo([
         PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
     ]
     ]);
-
+$hombreUsuario="";
 $app->mg = new Mailgun("key-76u-fd2ilxwmtid-dm9rgq69dikp6km3");
 $app->mg_domain = "tuquiniela.net";
 $app->email = <<<EOF
@@ -168,19 +172,38 @@ background-color: #f6f6f6;
 </body>
 </html>
 EOF;
+
 $body = $app->request->getBody();
+$usr= new usuario(tipoConsulta::Consulta,null);
 
-$app->get('/', function () {
-    echo "Parawebs, C.A";
-});
 
-$app->get('/zonas', function () use ($places) {
+$app->get('/', function () use ($app,$usr){
     header('access-control-allow-origin: *');
     header('Content-Type: application/json', false);
+    validartoken($app->request->get('tokenid'),$usr->sessionID);
+    echo json_encode(array("done"=>"Parawebs, C.A"));
+});
+
+$app->get('/cerrar', function () use ($app,$usr){
+    header('access-control-allow-origin: *');
+    header('Content-Type: application/json', false);
+    $usr= new usuario(tipoConsulta::Cerrar,null);
+    $logout["logout"]=true;
+    echo json_encode($logout);
+
+});
+
+$app->get('/zonas', function () use ($places,$app,$usr) {
+    header('access-control-allow-origin: *');
+    header('Content-Type: application/json', false);
+    validartoken($app->request->get('tokenid'),$usr->sessionID);
     echo json_encode($places);
 });
 
-$app->get('/meters/:id', function ($id) use ($app,$mts) {
+$app->get('/meters/:id', function ($id) use ($app,$mts,$usr) {
+    header('access-control-allow-origin: *');
+    header('Content-Type: application/json', false);
+    validartoken($app->request->get('tokenid'),$usr->sessionID);
     $data= $app->database->select('stands','std_mts',['AND'=>['std_tipo'=>$id,'std_estatus'=>edoStand::disponible]]);
     header("access-control-allow-origin: *");
     $response=array();
@@ -196,7 +219,10 @@ $app->get('/meters/:id', function ($id) use ($app,$mts) {
     echo json_encode($response);
 });
 
-$app->get('/stands/:id/:mts', function ($idtipo,$mtspos) use ($app,$mts){
+$app->get('/stands/:id/:mts', function ($idtipo,$mtspos) use ($app,$mts,$usr){
+  header('access-control-allow-origin: *');
+  header('Content-Type: application/json', false);
+  validartoken($app->request->get('tokenid'),$usr->sessionID);
   if(isset($mts[$mtspos]))
     $datas =  $app->database->select('stands',['std_id(id)','std_nro(name)'],['AND'=>['std_tipo'=>$idtipo,'std_mts'=>$mts[$mtspos],'std_estatus'=>edoStand::disponible], 'ORDER' => ['std_nro ASC']]);
   else
@@ -213,31 +239,61 @@ $app->get('/tipoempresa', function () use ($app){
   echo json_encode($datas);
 });
 
-$app->get('/listclie', function () use ($app){
+$app->get('/listclie', function () use ($app,$usr){
+  header('access-control-allow-origin: *');
+  header('Content-Type: application/json', false);
+  validartoken($app->request->get('tokenid'),$usr->sessionID);
 	$datas =  $app->database->select("preventaweb", "*");
-  header('access-control-allow-origin: *');
-  header('Content-Type: application/json', false);
   echo json_encode($datas);
 });
 
-$app->get('/allclient', function () use ($app){
+$app->get('/allclient', function () use ($app,$usr){
+  header('access-control-allow-origin: *');
+  header('Content-Type: application/json', false);
+  validartoken($app->request->get('tokenid'),$usr->sessionID);
   $datas =  $app->database->select("clientes", ["cli_rif(rif)","cli_razon(razon)","cli_contacto(contacto)","cli_id(id)"]);
-  header('access-control-allow-origin: *');
-  header('Content-Type: application/json', false);
   echo json_encode($datas);
 });
 
 
-$app->get('/clipre/:id', function ($id) use ($app){
-	$datas =  $app->database->select("preventaweb", "*" , [ "pre_id" => $id ]);
+$app->get('/clipre/:id', function ($id) use ($app,$usr){
   header('access-control-allow-origin: *');
   header('Content-Type: application/json', false);
+  validartoken($app->request->get('tokenid'),$usr->sessionID);
+	$datas =  $app->database->select("preventaweb", "*" , [ "pre_id" => $id ]);
 	echo json_encode($datas[0]);
 });
 
-$app->post('/saveclient', function () use ($app) {
 
+$app->post('/login', function () use ($app,$usr) {
+    header('access-control-allow-origin: *');
+    header('Content-Type: application/json', false);
     $vars = $app->request->post();
+    $resp = new stdClass();
+    $data= $app->database->select('user',["nombre","estado"],["AND"=>["usuario"=>$vars["login"],"clave"=>$vars["passwd"]]]);
+
+    if(!empty($data)&&$data[0]["estado"]>0){
+          $arg=array();
+          $arg['tipoLogOut']=tipoLogOut::Estado;
+          $arg['tipoUser']=tipoUsuario::Admin;
+          $arg['nombre']=$data[0]["nombre"];
+          $usr= new usuario(tipoConsulta::Creacion,$arg);
+          $resp->estatus=true;
+          $resp->item["token"]=$usr->sessionID;
+          $resp->item["user"]=$usr->nombre;
+    }
+    else{
+          $resp->estatus=false;
+          $resp->item="Usuario o clave inválida";
+    }
+    echo json_encode($resp);
+});
+
+$app->post('/saveclient', function () use ($app,$usr) {
+    header('access-control-allow-origin: *');
+    header('Content-Type: application/json', false);
+    $vars = $app->request->post();
+    validartoken($vars["tokenid"],$usr->sessionID);
     $status=true;
     $guardado=false;
     $errorlog=array();
@@ -299,18 +355,17 @@ $app->post('/saveclient', function () use ($app) {
     $respuesta = new stdClass();
     $respuesta->estatus = $guardado;
     $respuesta->error = $errorlog;
-
-  header('access-control-allow-origin: *');
-  header('Content-Type: application/json', false);
-  echo json_encode($respuesta);
+    echo json_encode($respuesta);
 
 });
 
 
-$app->post('/savenew', function () use ($app) {
-
-    $vars = $app->request->post();
-    $status=true;
+$app->post('/savenew', function () use ($app,$usr) {
+  header('access-control-allow-origin: *');
+  header('Content-Type: application/json', false);
+  $vars = $app->request->post();
+  validartoken($vars["tokenid"],$usr->sessionID);
+  $status=true;
 	$errorlog=array();
     if (empty($vars['empresa'])) {
     	$errorlog[]= "empresa";
@@ -358,16 +413,16 @@ $app->post('/savenew', function () use ($app) {
     $respuesta->estatus = $guardado;
     $respuesta->error = $errorlog;
 
-  header('access-control-allow-origin: *');
-  header('Content-Type: application/json', false);
   echo json_encode($respuesta);
 
 });
 
 
-$app->post('/update/:tipo/:id', function ($tipo,$id) use ($app) {
-
-	$vars = $app->request->post();
+$app->post('/update/:tipo/:id', function ($tipo,$id) use ($app,$usr) {
+  header('access-control-allow-origin: *');
+  header('Content-Type: application/json', false);
+  $vars = $app->request->post();
+  validartoken($vars["tokenid"],$usr->sessionID);
 	$respuesta = new stdClass();
 
     if ($tipo=="clipre") {
@@ -413,17 +468,16 @@ $app->post('/update/:tipo/:id', function ($tipo,$id) use ($app) {
 
     	}
     }
-
-  header('access-control-allow-origin: *');
-  header('Content-Type: application/json', false);
 	echo json_encode($respuesta);
 
 });
 
 
-$app->post('/newtask/:id', function ($id) use ($app) {
-
-	$vars = $app->request->post();
+$app->post('/newtask/:id', function ($id) use ($app,$usr) {
+  header('access-control-allow-origin: *');
+  header('Content-Type: application/json', false);
+  $vars = $app->request->post();
+  validartoken($vars["tokenid"],$usr->sessionID);
 	$respuesta = new stdClass();
 
 	if ($app->database->has( "preventaweb" , ["pre_id" => $id ] )) {
@@ -439,17 +493,16 @@ $app->post('/newtask/:id', function ($id) use ($app) {
 	}else{
 			$respuesta->estatus = false;
 	}
-  header('access-control-allow-origin: *');
-  header('Content-Type: application/json', false);
+
 	echo json_encode($respuesta);
 
 });
 
-$app->post('/listtask/:tip', function ($tip) use ($app) {
-
-	// Toda la lista de Tareas por Realizar
-	$vars = $app->request->post();
-
+$app->post('/listtask/:tip', function ($tip) use ($app,$usr) {
+  header('access-control-allow-origin: *');
+  header('Content-Type: application/json', false);
+  $vars = $app->request->post();
+  validartoken($vars["tokenid"],$usr->sessionID);
 	// En este lado construyo - El array del sql.
 	switch ($tip) {
 		case 'all':
@@ -469,11 +522,18 @@ $app->post('/listtask/:tip', function ($tip) use ($app) {
 
 	$datas =  $app->database->select("tarea_pre", "*" , $sql);
 
-  header('access-control-allow-origin: *');
-  header('Content-Type: application/json', false);
 	echo json_encode($datas);
 
 	// Lista DE TAREAS DE UN ID. EN ESPECIFICO
 });
+
+function validartoken($token,$sessionID){
+  if($token==''||!isset($token)||($token!=$sessionID)){
+      $logout["logout"]=true;
+      echo json_encode($logout);
+      die();
+  }
+}
+
 
 $app->run();
