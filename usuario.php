@@ -5,9 +5,9 @@ abstract class tipoUsuario{
 	const Normal = 2; //usuario Normal
 }
 abstract class tiempoSession{
-	const Admin=7200;  //Segundos de estadia del usuario admin 2h
-	const Normal=3600; // Segundos de estadia del usuario normal 1h.
-	const Defecto= 1800; //Tiempo por defecto
+	const Admin=600;  //Segundos de estadia del usuario admin 2h
+	const Normal=600; // Segundos de estadia del usuario normal 1h.
+	const Defecto=600; //Tiempo por defecto
 }
 abstract class tipoConsulta{
 	const Consulta=0;
