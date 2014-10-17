@@ -180,12 +180,7 @@ $usr= new usuario(tipoConsulta::Consulta,null);
 $app->get('/', function () use ($app,$usr){
     header('access-control-allow-origin: *');
     header('Content-Type: application/json', false);
-    $token = $app->request->get('tokenid');
-    if(!isset($token)||($token!=$usr->sessionID)){
-      $logout["logout"]=true;
-      echo json_encode($logout);
-      die();
-    }
+    validartoken($app->request->get('tokenid'),$usr->sessionID);
     echo json_encode(array("done"=>"Parawebs, C.A"));
 });
 
@@ -201,24 +196,14 @@ $app->get('/cerrar', function () use ($app,$usr){
 $app->get('/zonas', function () use ($places,$app,$usr) {
     header('access-control-allow-origin: *');
     header('Content-Type: application/json', false);
-    $token = $app->request->get('tokenid');
-    if(!isset($token)||($token!=$usr->sessionID)){
-      $logout["logout"]=true;
-      echo json_encode($logout);
-      die();
-    }
+    validartoken($app->request->get('tokenid'),$usr->sessionID);
     echo json_encode($places);
 });
 
 $app->get('/meters/:id', function ($id) use ($app,$mts,$usr) {
     header('access-control-allow-origin: *');
     header('Content-Type: application/json', false);
-    $token = $app->request->get('tokenid');
-    if(!isset($token)||($token!=$usr->sessionID)){
-      $logout["logout"]=true;
-      echo json_encode($logout);
-      die();
-    }
+    validartoken($app->request->get('tokenid'),$usr->sessionID);
     $data= $app->database->select('stands','std_mts',['AND'=>['std_tipo'=>$id,'std_estatus'=>edoStand::disponible]]);
     header("access-control-allow-origin: *");
     $response=array();
@@ -235,14 +220,9 @@ $app->get('/meters/:id', function ($id) use ($app,$mts,$usr) {
 });
 
 $app->get('/stands/:id/:mts', function ($idtipo,$mtspos) use ($app,$mts,$usr){
-    header('access-control-allow-origin: *');
-    header('Content-Type: application/json', false);
-    $token = $app->request->get('tokenid');
-    if(!isset($token)||($token!=$usr->sessionID)){
-      $logout["logout"]=true;
-      echo json_encode($logout);
-      die();
-    }
+  header('access-control-allow-origin: *');
+  header('Content-Type: application/json', false);
+  validartoken($app->request->get('tokenid'),$usr->sessionID);
   if(isset($mts[$mtspos]))
     $datas =  $app->database->select('stands',['std_id(id)','std_nro(name)'],['AND'=>['std_tipo'=>$idtipo,'std_mts'=>$mts[$mtspos],'std_estatus'=>edoStand::disponible], 'ORDER' => ['std_nro ASC']]);
   else
@@ -262,12 +242,7 @@ $app->get('/tipoempresa', function () use ($app){
 $app->get('/listclie', function () use ($app,$usr){
   header('access-control-allow-origin: *');
   header('Content-Type: application/json', false);
-  $token = $app->request->get('tokenid');
-  if(!isset($token)||($token!=$usr->sessionID)){
-      $logout["logout"]=true;
-      echo json_encode($logout);
-      die();
-   }
+  validartoken($app->request->get('tokenid'),$usr->sessionID);
 	$datas =  $app->database->select("preventaweb", "*");
   echo json_encode($datas);
 });
@@ -275,12 +250,7 @@ $app->get('/listclie', function () use ($app,$usr){
 $app->get('/allclient', function () use ($app,$usr){
   header('access-control-allow-origin: *');
   header('Content-Type: application/json', false);
-  $token = $app->request->get('tokenid');
-  if(!isset($token)||($token!=$usr->sessionID)){
-      $logout["logout"]=true;
-      echo json_encode($logout);
-      die();
-   }
+  validartoken($app->request->get('tokenid'),$usr->sessionID);
   $datas =  $app->database->select("clientes", ["cli_rif(rif)","cli_razon(razon)","cli_contacto(contacto)","cli_id(id)"]);
   echo json_encode($datas);
 });
@@ -289,12 +259,7 @@ $app->get('/allclient', function () use ($app,$usr){
 $app->get('/clipre/:id', function ($id) use ($app,$usr){
   header('access-control-allow-origin: *');
   header('Content-Type: application/json', false);
-  $token = $app->request->get('tokenid');
-  if(!isset($token)||($token!=$usr->sessionID)){
-      $logout["logout"]=true;
-      echo json_encode($logout);
-      die();
-   }
+  validartoken($app->request->get('tokenid'),$usr->sessionID);
 	$datas =  $app->database->select("preventaweb", "*" , [ "pre_id" => $id ]);
 	echo json_encode($datas[0]);
 });
@@ -306,7 +271,8 @@ $app->post('/login', function () use ($app,$usr) {
     $vars = $app->request->post();
     $resp = new stdClass();
     $data= $app->database->select('user',["nombre","estado"],["AND"=>["usuario"=>$vars["login"],"clave"=>$vars["passwd"]]]);
-    if($data[0]["estado"]>0){
+
+    if(!empty($data)&&$data[0]["estado"]>0){
           $arg=array();
           $arg['tipoLogOut']=tipoLogOut::Estado;
           $arg['tipoUser']=tipoUsuario::Admin;
@@ -327,14 +293,7 @@ $app->post('/saveclient', function () use ($app,$usr) {
     header('access-control-allow-origin: *');
     header('Content-Type: application/json', false);
     $vars = $app->request->post();
-    $token =$vars["tokenid"];
-  if(!isset($token)||($token!=$usr->sessionID)){
-      $logout["logout"]=true;
-      $logout["token"]=$token;
-      $logout["session"]=$usr->sessionID;
-      echo json_encode($logout);
-      die();
-   }
+    validartoken($vars["tokenid"],$usr->sessionID);
     $status=true;
     $guardado=false;
     $errorlog=array();
@@ -405,15 +364,7 @@ $app->post('/savenew', function () use ($app,$usr) {
   header('access-control-allow-origin: *');
   header('Content-Type: application/json', false);
   $vars = $app->request->post();
-  $token =$vars["tokenid"];
-
-  if(!isset($token)||($token!=$usr->sessionID)){
-      $logout["logout"]=true;
-      $logout["token"]=$token;
-      $logout["session"]=$usr->sessionID;
-      echo json_encode($logout);
-      die();
-   }
+  validartoken($vars["tokenid"],$usr->sessionID);
   $status=true;
 	$errorlog=array();
     if (empty($vars['empresa'])) {
@@ -471,15 +422,7 @@ $app->post('/update/:tipo/:id', function ($tipo,$id) use ($app,$usr) {
   header('access-control-allow-origin: *');
   header('Content-Type: application/json', false);
   $vars = $app->request->post();
-  $token =$vars["tokenid"];
-
-  if(!isset($token)||($token!=$usr->sessionID)){
-      $logout["logout"]=true;
-      $logout["token"]=$token;
-      $logout["session"]=$usr->sessionID;
-      echo json_encode($logout);
-      die();
-   }
+  validartoken($vars["tokenid"],$usr->sessionID);
 	$respuesta = new stdClass();
 
     if ($tipo=="clipre") {
@@ -534,15 +477,7 @@ $app->post('/newtask/:id', function ($id) use ($app,$usr) {
   header('access-control-allow-origin: *');
   header('Content-Type: application/json', false);
   $vars = $app->request->post();
-  $token =$vars["tokenid"];
-
-  if(!isset($token)||($token!=$usr->sessionID)){
-      $logout["logout"]=true;
-      $logout["token"]=$token;
-      $logout["session"]=$usr->sessionID;
-      echo json_encode($logout);
-      die();
-   }
+  validartoken($vars["tokenid"],$usr->sessionID);
 	$respuesta = new stdClass();
 
 	if ($app->database->has( "preventaweb" , ["pre_id" => $id ] )) {
@@ -567,16 +502,7 @@ $app->post('/listtask/:tip', function ($tip) use ($app,$usr) {
   header('access-control-allow-origin: *');
   header('Content-Type: application/json', false);
   $vars = $app->request->post();
-  $token =$vars["tokenid"];
-
-  if(!isset($token)||($token!=$usr->sessionID)){
-      $logout["logout"]=true;
-      $logout["token"]=$token;
-      $logout["session"]=$usr->sessionID;
-      echo json_encode($logout);
-      die();
-   }
-
+  validartoken($vars["tokenid"],$usr->sessionID);
 	// En este lado construyo - El array del sql.
 	switch ($tip) {
 		case 'all':
@@ -600,5 +526,14 @@ $app->post('/listtask/:tip', function ($tip) use ($app,$usr) {
 
 	// Lista DE TAREAS DE UN ID. EN ESPECIFICO
 });
+
+function validartoken($token,$sessionID){
+  if($token==''||!isset($token)||($token!=$sessionID)){
+      $logout["logout"]=true;
+      echo json_encode($logout);
+      die();
+  }
+}
+
 
 $app->run();
