@@ -149,7 +149,7 @@ $app->get('/listands/:id', function ($id) use ($app,$usr){
   header('access-control-allow-origin: *');
   header('Content-Type: application/json', false);
   validartoken($app->request->get('tokenid'),$usr->sessionID);
-  $datas =  $app->database->select("stands",["std_id(id)","std_tipo(tipo)","std_nro(nro)","std_estatus(status)"], ["idCliente"=>$id]);
+  $datas =  $app->database->select("stands",["std_id(id)","std_tipo(tipo)","std_nro(nro)","std_estatus(status)","std_mts(mts)"], ["idCliente"=>$id]);
   echo json_encode($datas);
 });
 
