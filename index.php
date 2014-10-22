@@ -410,6 +410,21 @@ if($tipo=="freestand"){
   }
 }
 
+if($tipo=="standcond"){
+ if ($app->database->has( "stands" , ["std_id" => $id ] )) {
+    $afected=$app->database->update('stands',["std_estatus"=>$vars['condi']],["std_id" => $id ]);
+    if($afected>0){
+      $respuesta->estatus = true;
+    }
+    else{
+      $respuesta->estatus = false;
+    }
+  }
+  else{
+    $respuesta->estatus = false;
+  }
+}
+
 echo json_encode($respuesta);
 });
 
