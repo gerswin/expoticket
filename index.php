@@ -387,13 +387,29 @@ if($tipo=="cliventa"){
       $respuesta->estatus = true;
     }
     else{
-      $respuesta->estatus = true;
+      $respuesta->estatus = false;
     }
   }
   else{
     $respuesta->estatus = false;
   }
 }
+
+if($tipo=="freestand"){
+ if ($app->database->has( "stands" , ["std_id" => $id ] )) {
+    $afected=$app->database->update('stands',["idCliente"=>"0","std_estatus"=>"1"],["std_id" => $id ]);
+    if($afected>0){
+      $respuesta->estatus = true;
+    }
+    else{
+      $respuesta->estatus = false;
+    }
+  }
+  else{
+    $respuesta->estatus = false;
+  }
+}
+
 echo json_encode($respuesta);
 });
 
