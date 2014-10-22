@@ -32,10 +32,10 @@ require_once 'usuario.php';
 require 'vendor/autoload.php';
 use Mailgun\Mailgun;
 
-$app = new \Slim\Slim(array(
-  'mode' => 'production'));
+$app = new \Slim\Slim();
+// $app = new \Slim\Slim(array(
+//   'mode' => 'production'));
 $app->database = new medoo([
-
   'database_type' => 'mysql',
   'database_name' => 'expofiss',
   'server' => '127.0.0.1',
@@ -143,6 +143,14 @@ $app->get('/clipre/:id', function ($id) use ($app,$usr){
   validartoken($app->request->get('tokenid'),$usr->sessionID);
   $datas =  $app->database->select("preventaweb", "*" , [ "pre_id" => $id ]);
   echo json_encode($datas[0]);
+});
+
+$app->get('/listands/:id', function ($id) use ($app,$usr){
+  header('access-control-allow-origin: *');
+  header('Content-Type: application/json', false);
+  validartoken($app->request->get('tokenid'),$usr->sessionID);
+  $datas =  $app->database->select("stands",["std_id(id)","std_tipo(tipo)","std_nro(nro)","std_estatus(status)","std_mts(mts)"], ["idCliente"=>$id]);
+  echo json_encode($datas);
 });
 
 $app->post('/login', function () use ($app,$usr) {
@@ -329,67 +337,95 @@ $app->post('/update/:tipo/:id', function ($tipo,$id) use ($app,$usr) {
   $vars = $app->request->post();
   validartoken($vars["tokenid"],$usr->sessionID);
   $respuesta = new stdClass();
-
   if ($tipo=="clipre") {
-   if ($app->database->has( "preventaweb" , ["pre_id" => $id ] )) {
-    $updatepre=array();
-    if (isset($vars['pre_est'])) {
-     $updatepre['pre_est'] =  $vars['pre_est'];
+     if ($app->database->has( "preventaweb" , ["pre_id" => $id ] )) {
+      $updatepre=array();
+      if (isset($vars['pre_est'])) {
+       $updatepre['pre_est'] =  $vars['pre_est'];
+     }
+     if (isset($vars['pre_int'])) {
+       $updatepre['pre_int'] =  $vars['pre_int'];
+     }
+     $app->database->update('preventaweb', $updatepre , ["pre_id" => $id]);
+
+     $respuesta->estatus = true;
+
+   }else{
+
+     $respuesta->estatus = false;
+
    }
-   if (isset($vars['pre_int'])) {
-     $updatepre['pre_int'] =  $vars['pre_int'];
-   }
-   $app->database->update('preventaweb', $updatepre , ["pre_id" => $id]);
-
-   $respuesta->estatus = true;
-
- }else{
-
-   $respuesta->estatus = false;
-
- }
-}
+  }
 if ($tipo=="firth") {
- if ($app->database->has( "preventaweb" , ["pre_id" => $id ] )) {
-  $updatepre['pre_est'] =  "1";
-  $app->database->update('preventaweb', $updatepre , ["pre_id" => $id]);
-  $respuesta->estatus = true;
-}else{
- $respuesta->estatus = false;
-}
+  if ($app->database->has( "preventaweb" , ["pre_id" => $id ] )) {
+    $updatepre['pre_est'] =  "1";
+    $app->database->update('preventaweb', $updatepre , ["pre_id" => $id]);
+    $respuesta->estatus = true;
+  }else{
+   $respuesta->estatus = false;
+  }
 }
 
 if ($tipo=="task") {
  if ($app->database->has( "tarea_pre" , ["tar_id" => $id ] )) {
+    $updatetar = [ "tar_est"=>$vars['tar_est'] , "tar_not"=>$vars['tar_not']];
+    $app->database->update('tarea_pre', $updatetar , ["tar_id" => $id]);
 
-  $updatetar = [ "tar_est"=>$vars['tar_est'] , "tar_not"=>$vars['tar_not']];
-  $app->database->update('tarea_pre', $updatetar , ["tar_id" => $id]);
+    $respuesta->estatus = true;
 
-  $respuesta->estatus = true;
+  }else{
 
-}else{
+    $respuesta->estatus = false;
 
-  $respuesta->estatus = false;
-
-}
+  }
 }
 
 if($tipo=="cliventa"){
  if ($app->database->has( "clientes" , ["cli_id" => $id ] )) {
-  $afected=$app->database->update('clientes',["cli_rif"=>$vars["rif"],"cli_razon"=>$vars["razon"],"cli_contacto"=>$vars["contacto"],"cli_telefono"=>$vars["telefono"],"cli_correo"=>$vars["correo"]],["cli_id" => $id ]);
-  if($afected>0){
-    $respuesta->estatus = true;
+    $afected=$app->database->update('clientes',["cli_rif"=>$vars["rif"],"cli_razon"=>$vars["razon"],"cli_contacto"=>$vars["contacto"],"cli_telefono"=>$vars["telefono"],"cli_correo"=>$vars["correo"]],["cli_id" => $id ]);
+    if($afected>0){
+      $respuesta->estatus = true;
+    }
+    else{
+      $respuesta->estatus = false;
+    }
   }
   else{
-    $respuesta->estatus = true;
+    $respuesta->estatus = false;
   }
 }
-else{
-  $respuesta->estatus = false;
-}
-echo json_encode($respuesta);
+
+if($tipo=="freestand"){
+ if ($app->database->has( "stands" , ["std_id" => $id ] )) {
+    $afected=$app->database->update('stands',["idCliente"=>"0","std_estatus"=>"1"],["std_id" => $id ]);
+    if($afected>0){
+      $respuesta->estatus = true;
+    }
+    else{
+      $respuesta->estatus = false;
+    }
+  }
+  else{
+    $respuesta->estatus = false;
+  }
 }
 
+if($tipo=="standcond"){
+ if ($app->database->has( "stands" , ["std_id" => $id ] )) {
+    $afected=$app->database->update('stands',["std_estatus"=>$vars['condi']],["std_id" => $id ]);
+    if($afected>0){
+      $respuesta->estatus = true;
+    }
+    else{
+      $respuesta->estatus = false;
+    }
+  }
+  else{
+    $respuesta->estatus = false;
+  }
+}
+
+echo json_encode($respuesta);
 });
 
 
