@@ -3,8 +3,20 @@ require '../vendor/autoload.php';
 require 'class.result.php';
 
 $app = new \Slim\Slim();
-$datab = new medoo();
-$app->database=$datab;
+$app->database = new medoo([
+
+  'database_type' => 'mysql',
+  'database_name' => 'heroku_c9899a9d8ba32ea',
+  'server' => 'us-cdbr-iron-east-01.cleardb.net',
+  'username' => 'bdfafd99df173d',
+  'password' => '7ee8528b',
+  'port' => 3306,
+  'charset' => 'utf8',
+  'option' => [
+        //PDO::ATTR_CASE => PDO::CASE_NATURAL,
+  PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
+  ]
+  ]);
 
 $app->get('/', function () {
 	echo "Parawebs C,a";
