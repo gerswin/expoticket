@@ -226,16 +226,22 @@ $app->get('/credenciales/:fkactiva/:numini', function($fkactiva,$numini) use($ap
 	foreach ($items as $key => $value) {
 
 		switch ($value["pabellon"]) {
-			case 'Venezuela':
-				$bg = "bgv.jpg";
-				break;
-			case 'Colombia':
-				$bg = "bgc.jpg";
-				break;
-			default:
-				$bg = "bg.png";
-				break;
-		}
+            case 'Venezuela':
+                $bg = "bgv.jpg";
+                break;
+            case 'Colombia':
+                $bg = "bgc.jpg";
+                break;
+            case 'Sport Bar':
+                $bg = "bgs.jpg";
+                break;
+            case 'Feria Comida':
+                $bg = "bgf.jpg";
+                break;
+            default:
+                $bg = "bg.png";
+                break;
+        }
 		$value["bg"] = $bg;
 		$value["idtk"] = str_pad($value["id"], 5, "0", STR_PAD_LEFT);
 
