@@ -23,7 +23,6 @@ $app->get('/', function () {
 });
 
 
-
 $app->get('/solicitud/:tipo/:value', function ($tipo,$value) use($app){
 	header('access-control-allow-origin: *');
 	header('Content-Type: application/json', false);
@@ -80,6 +79,7 @@ $app->get('/infoclient/:client', function($client) use($app){
 		$resp->sucess=true;
 		$resp->items=$items[0];
 		$idact=$app->database->select("activaciones","id",["codigo"=>$items[0]['id']]);
+
         $resp->activa=count($idact);
     }
 	else{
@@ -166,7 +166,7 @@ $app->get('/mail', function() use($app){
 	}
 	 $resp->phone = $phone;
 	 $resp->mail = $mail;
-	
+
 	header('access-control-allow-origin: *');
 	header('Content-Type: application/json', false);
 	echo json_encode($resp);
@@ -181,7 +181,7 @@ $app->get('/credenciales/:idcliente', function($idcliente) use($app){
 	$values = array();
 	$resp=new StdClass();
 	$getcredencial =  array();
-	
+
 	$items=$app->database->select("activaciones", ["[>]credenciales" => ["id" => "fk_activaciones"]], ["activaciones.id(ids)","credenciales.nombre","credenciales.cedula","credenciales.urlimage"], ["AND" => [ "activaciones.codigo" => $idcliente , "credenciales.id[!]" => null ]]);
 
 	if (count($items)) {
@@ -191,8 +191,8 @@ $app->get('/credenciales/:idcliente', function($idcliente) use($app){
 		$idactivacion = $items[0]['ids'];
 		$getcredencial =  array();
 		$getcredencial[] = "?sclient=".$idactivacion."&numinit=".$i."";
-		
-		foreach ($items as $value) {	
+
+		foreach ($items as $value) {
 			if ($vuelta==3) {
 				$i= $i + 1;
 				$getcredencial[] = "?sclient=".$idactivacion."&numinit=".$i."";
@@ -208,6 +208,8 @@ $app->get('/credenciales/:idcliente', function($idcliente) use($app){
 		$resp->sucess=false;
 		$resp->msg="Sin credenciales generadas";
 	}
+	header('access-control-allow-origin: *');
+	header('Content-Type: application/json', false);
 	echo json_encode($resp);
 });
 
@@ -223,7 +225,7 @@ $app->get('/credenciales/:fkactiva/:numini', function($fkactiva,$numini) use($ap
 	$is=0;
 	$bg = "bg.png";
 	foreach ($items as $key => $value) {
-	
+
 		switch ($value["pabellon"]) {
 			case 'Venezuela':
 				$bg = "bgv.jpg";
@@ -241,10 +243,14 @@ $app->get('/credenciales/:fkactiva/:numini', function($fkactiva,$numini) use($ap
 		if ($is>=2) {
 			$value["clase"] = "title2";
 		}
+		if (strlen($value["urlimage"]) < 3) {
+            $value["urlimage"] = "";
+        }
 		$items[$key]= $value;
-	$is++; 
+	$is++;
 	}
 	$credenciales = ['credenciales' => $items];
+
 	echo json_encode($credenciales);
 });
 
