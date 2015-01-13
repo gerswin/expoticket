@@ -19,7 +19,7 @@ $app->database = new medoo([
   ]);
 
 $app->get('/', function () {
-	echo "Parawebs C,a";
+	echo "Parawebs, C.A";
 });
 
 
@@ -73,12 +73,12 @@ $app->get('/infoclient/:client', function($client) use($app){
 	header('Content-Type: application/json', false);
 	$resp=new StdClass();
 	$items=array();
-	$items=$app->database->select("comercio",["nombre","pabellon","stand","credencial"],["id"=>$client]);
+	$items=$app->database->select("comercio",["id","nombre","pabellon","stand","credencial"],["token"=>$client]);
 
 	if(count($items)>0){
 		$resp->sucess=true;
 		$resp->items=$items[0];
-		$idact=$app->database->select("activaciones","id",["codigo"=>$client]);
+		$idact=$app->database->select("activaciones","id",["codigo"=>$items[0]['id']]);
         $resp->activa=count($idact);
     }
 	else{
@@ -114,6 +114,135 @@ $app->post('/update/:comercio', function ($comercio) use($app){
     	$resp->msg="Actualizado Fallido";
     }
     echo json_encode($resp);
+});
+
+$app->post('/create/stand/:idclient', function ($idclient) use($app){
+	header('access-control-allow-origin: *');
+	header('Content-Type: application/json', false);
+	$resp=new StdClass();
+	$post =json_decode($app->request->getBody());
+	$insert=array();
+
+	$last_acti = $app->database->insert("activaciones", ["codigo"=>$idclient,"tipo"=>1,"status"=>2,"fecha"=>(new DateTime())->format('Y-m-d H:i:s')]);
+
+
+    foreach($post->ci as $key => $value) {
+        $insert[]=["fk_activaciones"=>$last_acti,"nombre"=>$post->nombrs[$key],"urlimage"=>($post->img[$key]|""),"movil"=>$post->telef[$key],"cedula"=>$post->ci[$key]];
+    }
+	$last_credencial_id = $app->database->insert("credenciales", $insert);
+
+    if($last_credencial_id>0){
+    	$resp->sucess=true;
+    	$resp->msg="Actualizado Exitoso";
+    }else{
+    	$resp->sucess=false;
+    	$resp->msg="Actualizado Fallido";
+    }
+    echo json_encode($resp);
+});
+
+
+$app->get('/mail', function() use($app){
+
+	$timtok = time();
+	$valtok = 3443000;
+
+	$resp=new StdClass();
+	$items=array();
+	$phone = "";
+	$items=$app->database->select("comercio",["id","nrotelf","mail"]);
+
+	foreach ($items as $item) {
+		if ($item["nrotelf"]) {
+			$phone = $phone.",". $item["nrotelf"];
+		}
+		if ($item["mail"]) {
+			$mail = $mail.",". $item["mail"];
+		}
+		$token = dechex($timtok);
+		//$app->database->update("comercio", ["token" => $token], ["id" =>$item["id"]]);
+		$timtok = $timtok + $valtok;
+	}
+	 $resp->phone = $phone;
+	 $resp->mail = $mail;
+	
+	header('access-control-allow-origin: *');
+	header('Content-Type: application/json', false);
+	echo json_encode($resp);
+});
+
+
+
+
+$app->get('/credenciales/:idcliente', function($idcliente) use($app){
+
+	// Mando el id del cliente
+	$values = array();
+	$resp=new StdClass();
+	$getcredencial =  array();
+	
+	$items=$app->database->select("activaciones", ["[>]credenciales" => ["id" => "fk_activaciones"]], ["activaciones.id(ids)","credenciales.nombre","credenciales.cedula","credenciales.urlimage"], ["AND" => [ "activaciones.codigo" => $idcliente , "credenciales.id[!]" => null ]]);
+
+	if (count($items)) {
+		$i= 0;
+		$cliente = $items[0]['ids'];
+		$getcredencial =  array();
+		$getcredencial[] = "?sclient=".$cliente."&numinit=".$i."";
+
+		$vuelta = 0;
+		foreach ($items as $value) {	
+			if ($vuelta==3) {
+				$i= $i + 1;
+				$getcredencial[] = "?sclient=".$cliente."&numinit=".$i."";
+				$vuelta = 0;
+			}
+			$vuelta++;
+			$i++;
+		}
+		$resp->sucess=true;
+    	$resp->items=$getcredencial;
+	}else{
+		$resp->sucess=false;
+		$resp->msg="Sin credenciales generados Fallido";
+	}
+	echo json_encode($resp);
+});
+
+
+$app->get('/credenciales/:fkactiva/:numini', function($fkactiva,$numini) use($app){
+
+	// $fkactiva es el numero de activacion.
+	// $numini es el numero desde donde inicia.
+	header('access-control-allow-origin: *');
+	header('Content-Type: application/json', false);
+
+	$items=$app->database->select("activaciones", ["[>]credenciales" => ["id" => "fk_activaciones"] , "[>]comercio" => ["codigo" => "id"]], ["credenciales.id","credenciales.nombre","credenciales.cedula","credenciales.urlimage","comercio.nombre(razon)","comercio.nombrecomercial","comercio.pabellon","comercio.stand"],["LIMIT" => [$numini, 4],"fk_activaciones" => $fkactiva]);
+	$is=0;
+	$bg = "bg.png";
+	foreach ($items as $key => $value) {
+	
+		switch ($value["pabellon"]) {
+			case 'Venezuela':
+				$bg = "bgv.jpg";
+				break;
+			case 'Colombia':
+				$bg = "bgc.jpg";
+				break;
+			default:
+				$bg = "bg.png";
+				break;
+		}
+		$value["bg"] = $bg;
+		$value["idtk"] = str_pad($value["id"], 5, "0", STR_PAD_LEFT);
+
+		if ($is>=2) {
+			$value["clase"] = "title2";
+		}
+		$items[$key]= $value;
+	$is++; 
+	}
+	$credenciales = ['credenciales' => $items];
+	echo json_encode($credenciales);
 });
 
 $app->run();
