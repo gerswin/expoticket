@@ -191,7 +191,6 @@ $app->get('/credenciales/:idcliente', function($idcliente) use($app){
 		$idactivacion = $items[0]['ids'];
 		$getcredencial =  array();
 		$getcredencial[] = "?sclient=".$idactivacion."&numinit=".$i."";
-		var_dump($items);
 		foreach ($items as $value) {
 			if ($vuelta==3) {
 				$i= $i + 1;
