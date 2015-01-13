@@ -23,6 +23,7 @@ $app->get('/', function () {
 });
 
 
+
 $app->get('/solicitud/:tipo/:value', function ($tipo,$value) use($app){
 	header('access-control-allow-origin: *');
 	header('Content-Type: application/json', false);
@@ -185,15 +186,16 @@ $app->get('/credenciales/:idcliente', function($idcliente) use($app){
 
 	if (count($items)) {
 		$i= 0;
-		$cliente = $items[0]['ids'];
-		$getcredencial =  array();
-		$getcredencial[] = "?sclient=".$cliente."&numinit=".$i."";
-
 		$vuelta = 0;
+
+		$idactivacion = $items[0]['ids'];
+		$getcredencial =  array();
+		$getcredencial[] = "?sclient=".$idactivacion."&numinit=".$i."";
+		
 		foreach ($items as $value) {	
 			if ($vuelta==3) {
 				$i= $i + 1;
-				$getcredencial[] = "?sclient=".$cliente."&numinit=".$i."";
+				$getcredencial[] = "?sclient=".$idactivacion."&numinit=".$i."";
 				$vuelta = 0;
 			}
 			$vuelta++;
@@ -201,9 +203,10 @@ $app->get('/credenciales/:idcliente', function($idcliente) use($app){
 		}
 		$resp->sucess=true;
     	$resp->items=$getcredencial;
+
 	}else{
 		$resp->sucess=false;
-		$resp->msg="Sin credenciales generados Fallido";
+		$resp->msg="Sin credenciales generadas";
 	}
 	echo json_encode($resp);
 });
