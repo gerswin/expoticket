@@ -262,16 +262,16 @@ $app->post('/update/comercios/:idclient', function ($idclient) use($app){
 
 	$resp=new StdClass();
 
-	if($app->database->has("activaciones",["comercio" => $idclient , "tipo" => 1 ]) ){
+	if($app->database->has("activaciones", ["codigo" => $idclient] )){
 		$resp->sucess=false;
-		$resp->msg="Sin credenciales generadas";
+		$resp->msg="credenciales activadas";
 	}else{
-		$post =json_decode($app->request->getBody());
-		$dat["credencial"] = $post->numero;
-		$updated=$app->database->update("comercio",$dat ,["id"=>$idclient]);
+		$allPostVars = $app->request->post();
+		$dat["credencial"] = $allPostVars['numero'];
+		$updated=$app->database->update("comercio",$dat,["id"=>$idclient]);	
 		$resp->sucess=true;
 	}
-
+	
 	header('access-control-allow-origin: *');
 	header('Content-Type: application/json', false);
 	echo json_encode($resp);
