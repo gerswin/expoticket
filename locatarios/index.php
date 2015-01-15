@@ -1,7 +1,7 @@
 <?php
 require '../vendor/autoload.php';
 require 'class.result.php';
-
+define("TOKEN", "61B4C311");
 $app = new \Slim\Slim();
 $app->database = new medoo([
 
