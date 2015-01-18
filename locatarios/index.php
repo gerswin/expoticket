@@ -369,7 +369,7 @@ $app->get('/credenciales/:fkactiva/:numini', function($fkactiva,$numini) use($ap
 		$is=0;
 		$bg = "bg.png";
 
-		$arraytipo=["2"=>"Personal Administrativo","3"=>"Mantenimiento","4"=>"Ente Gubernamental","5"=>"Seguridad","6"=>"Acreditacion Adicional"];
+		$arraytipo=["2"=>"Personal Administrativo","3"=>"Mantenimiento","4"=>"Ente Gubernamental","5"=>"Seguridad","6"=>"Acreditacion Adicional","7"=>"Acreditacion Pendiente"];
 		foreach ($items as $key => $value) {
 			$value["bg"] = "bg.png";
 			$value["idtk"] = str_pad($value["id"], 5, "0", STR_PAD_LEFT);
@@ -398,7 +398,7 @@ $app->get('/acreditaciones', function() use($app){
 	header('Content-Type: application/json', false);
 	$values = array();
 	$resp=new StdClass();
-	$arraytipo=["2"=>"Personal Administrativo","3"=>"Mantenimiento","4"=>"Ente Gubernamental","5"=>"Seguridad","6"=>"Acreditacion Adicional"];
+	$arraytipo=["2"=>"Personal Administrativo","3"=>"Mantenimiento","4"=>"Ente Gubernamental","5"=>"Seguridad","6"=>"Acreditacion Adicional","7"=>"Acreditacion Pendiente"];
 
 	$items=$app->database->select("activaciones", ["[>]comercio" => ["codigo" => "id"]], ["activaciones.id(ids)","comercio.nombre","activaciones.tipo"]);
 
