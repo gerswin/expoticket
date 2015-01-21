@@ -60,6 +60,18 @@ $app->get('/', function () use ($app,$usr){
   echo json_encode(array("done"=>"Parawebs, C.A"));
 });
 
+$app->get('/titles', function () use ($app){
+  header('access-control-allow-origin: *');
+  header('Content-Type: application/json', false);
+
+        $doc = new DOMDocument();
+        @$doc->loadHTML( file_get_contents( $app->request->get('url') ) );
+        $xpt = new DOMXPath( $doc );
+        $output = $xpt->query("//title")->item(0)->nodeValue;
+    
+    echo json_encode(array("title"=>$output));
+});
+
 $app->get('/cerrar', function () use ($app,$usr){
   header('access-control-allow-origin: *');
   header('Content-Type: application/json', false);
