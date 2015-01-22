@@ -8,7 +8,10 @@ function getTitle($Url){
     }
 }
 //Example:
+$doc = new DOMDocument();
+@$doc->loadHTMLFile($_POST["url"]);
+$xpath = new DOMXPath($doc);
 
 
-  echo json_encode(array("title"=>getTitle($_POST["url"])));
+  echo json_encode(array("title"=>$xpath->query('//title')->item(0)->nodeValue));
 ?>
