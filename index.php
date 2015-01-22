@@ -60,14 +60,7 @@ $app->get('/', function () use ($app,$usr){
   echo json_encode(array("done"=>"Parawebs, C.A"));
 });
 
-$app->post('/titles/:url', function ($url) use ($app) {
-  header('access-control-allow-origin: *');
-  header('Content-Type: application/json', false);
 
-  echo json_encode(array("done"=>$url));
-
- 
-});
 
 $app->get('/cerrar', function () use ($app,$usr){
   header('access-control-allow-origin: *');
