@@ -60,13 +60,13 @@ $app->get('/', function () use ($app,$usr){
   echo json_encode(array("done"=>"Parawebs, C.A"));
 });
 
-$app->post('/titles', function () use ($app){
+$app->post('/titles/:url', function ($url) use ($app) {
   header('access-control-allow-origin: *');
   header('Content-Type: application/json', false);
-  $page_url = $app->request->post('url');
 
-    
-    echo json_encode(array("title"=>$app->request());
+  echo json_encode(array("done"=>$url));
+
+ 
 });
 
 $app->get('/cerrar', function () use ($app,$usr){
