@@ -63,22 +63,10 @@ $app->get('/', function () use ($app,$usr){
 $app->post('/titles', function () use ($app){
   header('access-control-allow-origin: *');
   header('Content-Type: application/json', false);
-$page_url = $app->request->post('url');
+  $page_url = $app->request->post('url');
 
-        $read_page=file_get_contents($page_url);
-        preg_match("/<title.*?>[\n\r\s]*(.*)[\n\r\s]*<\/title>/", $read_page, $page_title);
-      if (isset($page_title[1]))
-      {
-            if ($page_title[1] == '')
-            {
-                  return $page_url;
-            }
-            $page_title = $page_title[1];
-            
-      }
     
-    
-    echo json_encode(array("title"=>trim($page_title),"url"=>$app->request->post('url')));
+    echo json_encode(array("title"=>$app->request());
 });
 
 $app->get('/cerrar', function () use ($app,$usr){
