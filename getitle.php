@@ -10,5 +10,5 @@ function getTitle($Url){
 //Example:
 
 
-  echo json_encode(array("title"=>getTitle($_POST["url"]));
+  echo json_encode(array("title"=>getTitle($_POST["url"])));
 ?>
