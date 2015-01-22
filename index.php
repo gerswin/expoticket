@@ -63,13 +63,22 @@ $app->get('/', function () use ($app,$usr){
 $app->post('/titles', function () use ($app){
   header('access-control-allow-origin: *');
   header('Content-Type: application/json', false);
+$page_url = $app->request->post('url');
 
-        $doc = new DOMDocument();
-        @$doc->loadHTML( file_get_contents( $app->request->post('url') ) );
-        $xpt = new DOMXPath( $doc );
-        $output = $xpt->query("//title")->item(0)->nodeValue;
+        $read_page=file_get_contents($page_url);
+        preg_match("/<title.*?>[\n\r\s]*(.*)[\n\r\s]*<\/title>/", $read_page, $page_title);
+      if (isset($page_title[1]))
+      {
+            if ($page_title[1] == '')
+            {
+                  return $page_url;
+            }
+            $page_title = $page_title[1];
+            
+      }
     
-    echo json_encode(array("title"=>$output));
+    
+    echo json_encode(array("title"=>trim($page_title),"url"=>$app->request->post('url')));
 });
 
 $app->get('/cerrar', function () use ($app,$usr){
